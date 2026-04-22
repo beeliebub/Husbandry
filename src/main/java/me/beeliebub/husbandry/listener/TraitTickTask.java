@@ -2,7 +2,6 @@ package me.beeliebub.husbandry.listener;
 
 import me.beeliebub.husbandry.animal.AnimalData;
 import me.beeliebub.husbandry.trait.Trait;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -43,10 +42,9 @@ public class TraitTickTask extends BukkitRunnable {
                 Set<Trait> traits = animalData.getTraits(animal);
                 if (traits.isEmpty()) continue;
 
-                boolean inWater = animal.isInWater();
-                boolean inRain = !inWater && isExposedToRain(animal);
+                boolean wet = animal.isInWater() || animal.isInRain();
 
-                if (inWater || inRain) {
+                if (wet) {
                     if (traits.contains(Trait.HYDROPHOBIC)) {
                         animal.damage(1.0); // half heart
                     }
@@ -63,11 +61,4 @@ public class TraitTickTask extends BukkitRunnable {
         }
     }
 
-    private boolean isExposedToRain(Animals animal) {
-        World world = animal.getWorld();
-        if (!world.hasStorm()) return false;
-
-        Location loc = animal.getLocation();
-        return world.getHighestBlockYAt(loc) <= loc.getBlockY();
-    }
 }
