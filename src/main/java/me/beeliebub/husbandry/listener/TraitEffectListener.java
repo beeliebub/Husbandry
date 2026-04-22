@@ -117,6 +117,7 @@ public class TraitEffectListener implements Listener {
         Block block = event.getBlock();
 
         if (traits.contains(Trait.HONEY_HINDRANCE)) {
+            // Undo the honey level increase that vanilla applies when a nectar bee enters
             plugin.getServer().getScheduler().runTask(plugin, () -> adjustHoney(block, -1));
         } else if (traits.contains(Trait.HONEY_HELPER)) {
             plugin.getServer().getScheduler().runTask(plugin, () -> adjustHoney(block, 1));

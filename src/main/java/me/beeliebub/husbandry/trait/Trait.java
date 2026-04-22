@@ -26,42 +26,66 @@ import java.util.Set;
 public enum Trait {
 
     // ── General traits (all animals) ────────────────────────────────
-    SLUGGISH(TraitRarity.BASIC, InheritanceType.DOMINANT, "Sluggish"),
-    HASTY(TraitRarity.BASIC, InheritanceType.RECESSIVE, "Hasty"),
-    BEEFY(TraitRarity.BASIC, InheritanceType.RECESSIVE, "Beefy"),
-    BRITTLE(TraitRarity.BASIC, InheritanceType.DOMINANT, "Brittle"),
-    HEAVY(TraitRarity.BASIC, InheritanceType.RECESSIVE, "Heavy"),
-    FERTILE(TraitRarity.BASIC, InheritanceType.RECESSIVE, "Fertile"),
-    BARREN(TraitRarity.BASIC, InheritanceType.DOMINANT, "Barren"),
-    HYDROPHOBIC(TraitRarity.BASIC, InheritanceType.DOMINANT, "Hydrophobic"),
-    FIREPROOF(TraitRarity.RARE, InheritanceType.SPECIAL, "Fireproof"),
-    WATERBREATHING(TraitRarity.RARE, InheritanceType.SPECIAL, "Waterbreathing"),
-    SWIFT_SWIMMER(TraitRarity.RARE, InheritanceType.SPECIAL, "Swift Swimmer"),
-    HYDROPHILIC(TraitRarity.RARE, InheritanceType.SPECIAL, "Hydrophilic"),
-    BOUNTIFUL(TraitRarity.RARE, InheritanceType.SPECIAL, "Bountiful"),
-    INVINCIBLE(TraitRarity.LEGENDARY, InheritanceType.SPECIAL, "Invincible"),
+    SLUGGISH(TraitRarity.BASIC, InheritanceType.DOMINANT, "Sluggish",
+            "Reduces movement speed by 50%"),
+    HASTY(TraitRarity.BASIC, InheritanceType.RECESSIVE, "Hasty",
+            "Increases movement speed by 50%"),
+    BEEFY(TraitRarity.BASIC, InheritanceType.RECESSIVE, "Beefy",
+            "Increases max health by 50%"),
+    BRITTLE(TraitRarity.BASIC, InheritanceType.DOMINANT, "Brittle",
+            "Reduces max health by 50%"),
+    HEAVY(TraitRarity.BASIC, InheritanceType.RECESSIVE, "Heavy",
+            "Increases knockback resistance by 50%"),
+    FERTILE(TraitRarity.BASIC, InheritanceType.RECESSIVE, "Fertile",
+            "Both parents having this trait spawns a twin"),
+    BARREN(TraitRarity.BASIC, InheritanceType.DOMINANT, "Barren",
+            "Prevents this animal from breeding"),
+    HYDROPHOBIC(TraitRarity.BASIC, InheritanceType.DOMINANT, "Hydrophobic",
+            "Takes damage while in water or rain"),
+    FIREPROOF(TraitRarity.RARE, InheritanceType.SPECIAL, "Fireproof",
+            "Grants permanent fire resistance"),
+    WATERBREATHING(TraitRarity.RARE, InheritanceType.SPECIAL, "Waterbreathing",
+            "Prevents suffocation damage"),
+    SWIFT_SWIMMER(TraitRarity.RARE, InheritanceType.SPECIAL, "Swift Swimmer",
+            "Grants dolphin's grace while swimming"),
+    HYDROPHILIC(TraitRarity.RARE, InheritanceType.SPECIAL, "Hydrophilic",
+            "Heals while in water or rain"),
+    BOUNTIFUL(TraitRarity.RARE, InheritanceType.SPECIAL, "Bountiful",
+            "Doubles all drops on death"),
+    INVINCIBLE(TraitRarity.LEGENDARY, InheritanceType.SPECIAL, "Invincible",
+            "Immune to all damage"),
 
     // ── Wolf-specific ───────────────────────────────────────────────
-    COWARDLY(TraitRarity.BASIC, InheritanceType.DOMINANT, "Cowardly", EntityType.WOLF),
-    FIERCE(TraitRarity.BASIC, InheritanceType.RECESSIVE, "Fierce", EntityType.WOLF),
+    COWARDLY(TraitRarity.BASIC, InheritanceType.DOMINANT, "Cowardly",
+            "Reduces attack damage by 50%", EntityType.WOLF),
+    FIERCE(TraitRarity.BASIC, InheritanceType.RECESSIVE, "Fierce",
+            "Increases attack damage by 50%", EntityType.WOLF),
 
     // ── Bee-specific ────────────────────────────────────────────────
-    HONEY_HINDRANCE(TraitRarity.BASIC, InheritanceType.DOMINANT, "Honey Hindrance", EntityType.BEE),
-    HONEY_HELPER(TraitRarity.RARE, InheritanceType.SPECIAL, "Honey Helper", EntityType.BEE),
-    POLLINATOR(TraitRarity.LEGENDARY, InheritanceType.SPECIAL, "Pollinator", EntityType.BEE),
+    HONEY_HINDRANCE(TraitRarity.BASIC, InheritanceType.DOMINANT, "Honey Hindrance",
+            "Does not add honey to the hive when entering", EntityType.BEE),
+    HONEY_HELPER(TraitRarity.RARE, InheritanceType.SPECIAL, "Honey Helper",
+            "Increases hive honey level when entering", EntityType.BEE),
+    POLLINATOR(TraitRarity.LEGENDARY, InheritanceType.SPECIAL, "Pollinator",
+            "Instantly grows crops when pollinating", EntityType.BEE),
 
     // ── Horse-specific (horses, donkeys, mules) ─────────────────────
     SHORT_JUMPER(TraitRarity.BASIC, InheritanceType.DOMINANT, "Short Jumper",
+            "Reduces jump strength by 50%",
             EntityType.HORSE, EntityType.DONKEY, EntityType.MULE),
     HIGH_JUMPER(TraitRarity.BASIC, InheritanceType.RECESSIVE, "High Jumper",
+            "Increases jump strength by 50%",
             EntityType.HORSE, EntityType.DONKEY, EntityType.MULE),
 
     // ── Sheep-specific ──────────────────────────────────────────────
-    WOOLY(TraitRarity.RARE, InheritanceType.SPECIAL, "Wooly", EntityType.SHEEP),
+    WOOLY(TraitRarity.RARE, InheritanceType.SPECIAL, "Wooly",
+            "Doubles wool drops when sheared", EntityType.SHEEP),
 
     // ── Chicken-specific ────────────────────────────────────────────
-    EMPTY(TraitRarity.BASIC, InheritanceType.DOMINANT, "Empty", EntityType.CHICKEN),
-    EGGY(TraitRarity.RARE, InheritanceType.SPECIAL, "Eggy", EntityType.CHICKEN);
+    EMPTY(TraitRarity.BASIC, InheritanceType.DOMINANT, "Empty",
+            "Prevents egg laying", EntityType.CHICKEN),
+    EGGY(TraitRarity.RARE, InheritanceType.SPECIAL, "Eggy",
+            "Doubles egg drops", EntityType.CHICKEN);
 
     // ── Static registries ───────────────────────────────────────────
     private static final Map<Trait, List<ModifierEntry>> MODIFIER_MAP = new EnumMap<>(Trait.class);
@@ -88,12 +112,15 @@ public enum Trait {
     private final TraitRarity rarity;
     private final InheritanceType inheritanceType;
     private final String displayName;
+    private final String description;
     private final Set<EntityType> applicableTypes;
 
-    Trait(TraitRarity rarity, InheritanceType inheritanceType, String displayName, EntityType... types) {
+    Trait(TraitRarity rarity, InheritanceType inheritanceType, String displayName,
+          String description, EntityType... types) {
         this.rarity = rarity;
         this.inheritanceType = inheritanceType;
         this.displayName = displayName;
+        this.description = description;
         this.applicableTypes = types.length == 0 ? Set.of() : EnumSet.copyOf(Arrays.asList(types));
     }
 
@@ -109,6 +136,10 @@ public enum Trait {
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     /** Returns the entity types this trait is restricted to, or empty if it applies to all animals. */

@@ -56,9 +56,11 @@ public class TraitGui implements Listener {
         EntityType entityType = animal.getType();
         List<Trait> applicableTraits = getApplicableTraits(entityType);
         Set<Trait> animalTraits = animalData.getTraits(animal);
+        Gender gender = animalData.getGender(animal);
 
-        // Calculate inventory size (multiple of 9, min 9)
-        int size = ((applicableTraits.size() + 8) / 9) * 9;
+        // Calculate inventory size (traits + 1 gender item, multiple of 9, min 9)
+        int totalItems = applicableTraits.size() + 1;
+        int size = ((totalItems + 8) / 9) * 9;
         size = Math.max(9, size);
 
         String animalName = formatEntityType(entityType);
@@ -77,6 +79,9 @@ public class TraitGui implements Listener {
             boolean hasTrait = animalTraits.contains(trait);
             inventory.setItem(i, createTraitPane(trait, hasTrait, isEditor));
         }
+
+        // Place gender dye in the last slot of the inventory
+        inventory.setItem(size - 1, createGenderItem(gender));
 
         sessions.put(player.getUniqueId(),
                 new GuiSession(animal.getUniqueId(), isEditor, applicableTraits));
@@ -157,6 +162,9 @@ public class TraitGui implements Listener {
                 .decoration(TextDecoration.ITALIC, false));
 
         List<Component> lore = new ArrayList<>();
+        lore.add(Component.text(trait.getDescription(), NamedTextColor.WHITE)
+                .decoration(TextDecoration.ITALIC, false));
+        lore.add(Component.empty());
         lore.add(Component.text("Rarity: " + formatEnum(trait.getRarity().name()), NamedTextColor.GRAY)
                 .decoration(TextDecoration.ITALIC, false));
         lore.add(Component.text("Inheritance: " + formatEnum(trait.getInheritanceType().name()), NamedTextColor.GRAY)
@@ -171,6 +179,20 @@ public class TraitGui implements Listener {
         }
 
         meta.lore(lore);
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private static ItemStack createGenderItem(Gender gender) {
+        boolean isMale = gender == Gender.MALE;
+        Material mat = isMale ? Material.LIGHT_BLUE_DYE : Material.PINK_DYE;
+        ItemStack item = new ItemStack(mat);
+        ItemMeta meta = item.getItemMeta();
+
+        NamedTextColor color = isMale ? NamedTextColor.AQUA : NamedTextColor.LIGHT_PURPLE;
+        String label = isMale ? "Male" : "Female";
+        meta.displayName(Component.text(label, color).decoration(TextDecoration.ITALIC, false));
+
         item.setItemMeta(meta);
         return item;
     }
