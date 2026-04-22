@@ -9,28 +9,23 @@ import org.bukkit.entity.Animals;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityBreedEvent;
+import org.bukkit.plugin.Plugin;
 
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Handles offspring trait inheritance when two animals breed.
- *
- * <h3>Rules</h3>
- * <ul>
- *   <li><b>Dominant</b> - passed if at least one parent carries the trait.</li>
- *   <li><b>Recessive</b> - passed only if both parents carry the trait.</li>
- *   <li><b>Special</b> - never inherited through breeding.</li>
- *   <li>Breeding only succeeds when parents are one male and one female.</li>
- * </ul>
+ * Handles offspring trait inheritance and special breeding traits (Barren, Fertile).
  */
 public class BreedingListener implements Listener {
 
+    private final Plugin plugin;
     private final AnimalData animalData;
     private final TraitApplier traitApplier;
 
-    public BreedingListener(AnimalData animalData, TraitApplier traitApplier) {
+    public BreedingListener(Plugin plugin, AnimalData animalData, TraitApplier traitApplier) {
+        this.plugin = plugin;
         this.animalData = animalData;
         this.traitApplier = traitApplier;
     }
@@ -51,44 +46,56 @@ public class BreedingListener implements Listener {
             return;
         }
 
-        // Gather parent traits
         Set<Trait> motherTraits = animalData.getTraits(mother);
         Set<Trait> fatherTraits = animalData.getTraits(father);
 
-        // Determine offspring traits via inheritance rules
-        Set<Trait> childTraits = resolveInheritance(motherTraits, fatherTraits);
+        // Barren: if either parent has it, no baby spawns
+        if (motherTraits.contains(Trait.BARREN) || fatherTraits.contains(Trait.BARREN)) {
+            event.setCancelled(true);
+            return;
+        }
 
-        // Assign gender and traits to the child
+        // Determine offspring traits via inheritance rules
+        Set<Trait> childTraits = resolveInheritance(motherTraits, fatherTraits, child);
+
+        // Initialize the child
         Gender childGender = ThreadLocalRandom.current().nextBoolean() ? Gender.MALE : Gender.FEMALE;
         animalData.initialize(child, childGender, childTraits);
         traitApplier.applyAll(child, childTraits);
+
+        // Fertile: if both parents have it, spawn a twin on the next tick
+        if (motherTraits.contains(Trait.FERTILE) && fatherTraits.contains(Trait.FERTILE)) {
+            plugin.getServer().getScheduler().runTask(plugin, () -> spawnTwin(child, motherTraits, fatherTraits));
+        }
     }
 
-    /**
-     * Applies inheritance rules across all traits present in either parent.
-     */
-    private Set<Trait> resolveInheritance(Set<Trait> motherTraits, Set<Trait> fatherTraits) {
+    private void spawnTwin(Animals sibling, Set<Trait> motherTraits, Set<Trait> fatherTraits) {
+        Animals twin = (Animals) sibling.getWorld().spawnEntity(sibling.getLocation(), sibling.getType());
+        Set<Trait> twinTraits = resolveInheritance(motherTraits, fatherTraits, twin);
+        Gender twinGender = ThreadLocalRandom.current().nextBoolean() ? Gender.MALE : Gender.FEMALE;
+        animalData.initialize(twin, twinGender, twinTraits);
+        traitApplier.applyAll(twin, twinTraits);
+    }
+
+    private Set<Trait> resolveInheritance(Set<Trait> motherTraits, Set<Trait> fatherTraits, Animals child) {
         Set<Trait> result = EnumSet.noneOf(Trait.class);
 
-        // Collect the union of all traits from both parents
         Set<Trait> allParentTraits = EnumSet.noneOf(Trait.class);
         allParentTraits.addAll(motherTraits);
         allParentTraits.addAll(fatherTraits);
 
         for (Trait trait : allParentTraits) {
+            // Only inherit traits applicable to the child's entity type
+            if (!trait.isApplicableTo(child.getType())) continue;
+
             switch (trait.getInheritanceType()) {
-                case DOMINANT -> {
-                    // At least one parent has it (guaranteed since it's in the union)
-                    result.add(trait);
-                }
+                case DOMINANT -> result.add(trait);
                 case RECESSIVE -> {
                     if (motherTraits.contains(trait) && fatherTraits.contains(trait)) {
                         result.add(trait);
                     }
                 }
-                case SPECIAL -> {
-                    // Never inherited
-                }
+                case SPECIAL -> { /* never inherited */ }
             }
         }
 

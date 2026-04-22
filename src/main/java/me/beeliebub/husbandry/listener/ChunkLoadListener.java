@@ -7,6 +7,7 @@ import me.beeliebub.husbandry.trait.TraitApplier;
 import me.beeliebub.husbandry.trait.TraitRarity;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.EntitiesLoadEvent;
@@ -18,7 +19,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * When entities are loaded (chunk load), every {@link Animals} without the
- * Husbandry PDC tag is initialized with a random gender and random traits.
+ * Husbandry PDC tag is initialized with a random gender and random traits
+ * appropriate for its entity type.
  */
 public class ChunkLoadListener implements Listener {
 
@@ -35,7 +37,6 @@ public class ChunkLoadListener implements Listener {
         for (Entity entity : event.getEntities()) {
             if (!(entity instanceof Animals animal)) continue;
             if (animalData.isInitialized(animal)) {
-                // Already tagged - reapply modifiers so they survive restarts
                 traitApplier.applyAll(animal, animalData.getTraits(animal));
                 continue;
             }
@@ -47,23 +48,19 @@ public class ChunkLoadListener implements Listener {
         ThreadLocalRandom rng = ThreadLocalRandom.current();
 
         Gender gender = rng.nextBoolean() ? Gender.MALE : Gender.FEMALE;
-        Set<Trait> traits = rollRandomTraits(rng);
+        Set<Trait> traits = rollRandomTraits(rng, animal.getType());
 
         animalData.initialize(animal, gender, traits);
         traitApplier.applyAll(animal, traits);
     }
 
-    /**
-     * Rolls a small random set of traits using weighted rarity selection.
-     * Currently assigns 1-2 traits per animal; tune as needed.
-     */
-    private Set<Trait> rollRandomTraits(ThreadLocalRandom rng) {
+    private Set<Trait> rollRandomTraits(ThreadLocalRandom rng, EntityType entityType) {
         Set<Trait> result = EnumSet.noneOf(Trait.class);
         int count = rng.nextInt(1, 3); // 1 or 2 traits
 
         for (int i = 0; i < count; i++) {
             TraitRarity rarity = pickRarity(rng);
-            List<Trait> pool = Trait.byRarity(rarity);
+            List<Trait> pool = Trait.byRarityFor(rarity, entityType);
             if (!pool.isEmpty()) {
                 result.add(pool.get(rng.nextInt(pool.size())));
             }
@@ -78,6 +75,6 @@ public class ChunkLoadListener implements Listener {
             cumulative += rarity.getWeight();
             if (roll < cumulative) return rarity;
         }
-        return TraitRarity.BASIC; // fallback
+        return TraitRarity.BASIC;
     }
 }
