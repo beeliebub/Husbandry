@@ -4,3 +4,13 @@ version: '${version}'
 main: me.beeliebub.husbandry.Husbandry
 api-version: '26.1.1'
 load: POSTWORLD
+
+commands:
+  husbandry:
+    description: Husbandry admin commands
+    usage: /husbandry <analyzer|editor>
+
+permissions:
+  husbandry.admin:
+    description: Access to Husbandry admin commands
+    default: op
