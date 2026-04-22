@@ -1,0 +1,6 @@
+name: Husbandry
+version: '${version}'
+
+main: me.beeliebub.husbandry.Husbandry
+api-version: '26.1.1'
+load: POSTWORLD
