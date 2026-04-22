@@ -10,6 +10,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 
 import java.util.EnumSet;
@@ -40,6 +41,19 @@ public class ChunkLoadListener implements Listener {
                 traitApplier.applyAll(animal, animalData.getTraits(animal));
                 continue;
             }
+            initializeAnimal(animal);
+        }
+    }
+
+    @EventHandler
+    public void onCreatureSpawn(CreatureSpawnEvent event) {
+        if (!(event.getEntity() instanceof Animals animal)) return;
+
+        CreatureSpawnEvent.SpawnReason reason = event.getSpawnReason();
+        if (reason != CreatureSpawnEvent.SpawnReason.COMMAND
+                && reason != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) return;
+
+        if (!animalData.isInitialized(animal)) {
             initializeAnimal(animal);
         }
     }
