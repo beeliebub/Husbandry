@@ -98,9 +98,15 @@ public class TraitEffectListener implements Listener {
                 return;
             }
 
+            if (traits.contains(Trait.INQUISITORS_DISCIPLE)) {
+                event.getItemDrop().setItemStack(new ItemStack(Material.REDSTONE_BLOCK));
+            }
+
             if (traits.contains(Trait.EGGY)) {
                 chicken.getWorld().dropItemNaturally(
-                        chicken.getLocation(), new ItemStack(Material.EGG));
+                        chicken.getLocation(),
+                        new ItemStack(traits.contains(Trait.INQUISITORS_DISCIPLE)
+                                ? Material.REDSTONE_BLOCK : Material.EGG));
             }
         }
     }

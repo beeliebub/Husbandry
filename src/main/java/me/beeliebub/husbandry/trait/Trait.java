@@ -85,7 +85,9 @@ public enum Trait {
     EMPTY(TraitRarity.BASIC, InheritanceType.DOMINANT, "Empty",
             "Prevents egg laying", EntityType.CHICKEN),
     EGGY(TraitRarity.RARE, InheritanceType.SPECIAL, "Eggy",
-            "Doubles egg drops", EntityType.CHICKEN);
+            "Doubles egg drops", EntityType.CHICKEN),
+    INQUISITORS_DISCIPLE(TraitRarity.LEGENDARY, InheritanceType.SPECIAL, "Inquisitor's Disciple",
+            "Lays redstone blocks instead of eggs", EntityType.CHICKEN);
 
     // ── Static registries ───────────────────────────────────────────
     private static final Map<Trait, List<ModifierEntry>> MODIFIER_MAP = new EnumMap<>(Trait.class);

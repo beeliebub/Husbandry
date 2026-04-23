@@ -164,6 +164,7 @@ These traits only appear on (and are only rolled for) the listed species.
 |---|:---:|:---:|---|
 | **Empty** | Basic | Dominant | Prevents egg laying |
 | **Eggy** | Rare | Special | Drops an extra egg each time the chicken lays one |
+| **Inquisitor's Disciple** | Legendary | Special | Lays redstone blocks instead of eggs (stacks with Eggy for double redstone blocks) |
 
 ---
 
@@ -356,7 +357,7 @@ The trait system applies to all passive animal mobs. Species-specific traits are
 | Cow | -- |
 | Sheep | Wooly |
 | Pig | -- |
-| Chicken | Empty, Eggy |
+| Chicken | Empty, Eggy, Inquisitor's Disciple |
 | Rabbit | -- |
 | Horse | Short Jumper, High Jumper |
 | Donkey | Short Jumper, High Jumper |
