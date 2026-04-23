@@ -84,6 +84,10 @@ public final class CropData {
      * Applies crop traits and/or quality crop marker to an item, updating its PDC and display.
      * Traits are stored as-is in crop_traits (including QUALITY if present).
      * The quality_crop marker is independent of the Quality trait.
+     * <p>
+     * Plantable items must never have both the Quality trait and the quality_crop marker.
+     * If both would be applied, quality_crop takes precedence and the Quality trait is
+     * stripped from crop_traits.
      *
      * @param item            the item to modify
      * @param traits          planting traits to set (can include QUALITY)
@@ -92,6 +96,13 @@ public final class CropData {
      */
     public void applyToItem(ItemStack item, Set<CropTrait> traits, boolean qualityCrop,
                             String displayName) {
+        // Plantables must never have both Quality trait and quality_crop marker.
+        // If both would be applied, quality_crop wins and Quality trait is stripped.
+        if (qualityCrop && traits.contains(CropTrait.QUALITY) && isPlantableItem(item.getType())) {
+            traits = EnumSet.copyOf(traits);
+            traits.remove(CropTrait.QUALITY);
+        }
+
         ItemMeta meta = item.getItemMeta();
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
 

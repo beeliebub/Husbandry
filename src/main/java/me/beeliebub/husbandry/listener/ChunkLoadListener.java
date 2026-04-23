@@ -41,6 +41,7 @@ public class ChunkLoadListener implements Listener {
     public void onEntitiesLoad(EntitiesLoadEvent event) {
         for (Entity entity : event.getEntities()) {
             if (!(entity instanceof Animals animal)) continue;
+            if (animalData.isSpawnerMob(animal)) continue;
             if (animalData.isInitialized(animal)) {
                 traitApplier.applyAll(animal, animalData.getTraits(animal));
                 continue;
@@ -54,6 +55,13 @@ public class ChunkLoadListener implements Listener {
         if (!(event.getEntity() instanceof Animals animal)) return;
 
         CreatureSpawnEvent.SpawnReason reason = event.getSpawnReason();
+
+        // Spawner-block animals get flagged and never receive traits
+        if (reason == CreatureSpawnEvent.SpawnReason.SPAWNER) {
+            animalData.markSpawnerMob(animal);
+            return;
+        }
+
         if (reason != CreatureSpawnEvent.SpawnReason.COMMAND
                 && reason != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) return;
 

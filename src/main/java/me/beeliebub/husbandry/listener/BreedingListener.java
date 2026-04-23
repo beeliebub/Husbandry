@@ -155,9 +155,10 @@ public class BreedingListener implements Listener {
                 }
                 case SPECIAL -> {
                     // With quality feed, RARE-rarity SPECIAL traits can be inherited
-                    // (treated like DOMINANT: at least one parent must have it)
+                    // only if BOTH parents have the trait (like RECESSIVE)
                     // LEGENDARY-rarity SPECIAL traits are never inherited
-                    if (qualityBreeding && trait.getRarity() == TraitRarity.RARE) {
+                    if (qualityBreeding && trait.getRarity() == TraitRarity.RARE
+                            && motherTraits.contains(trait) && fatherTraits.contains(trait)) {
                         result.add(trait);
                     }
                 }

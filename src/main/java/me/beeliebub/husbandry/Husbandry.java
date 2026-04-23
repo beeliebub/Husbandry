@@ -35,23 +35,16 @@ public final class Husbandry extends JavaPlugin {
         husbandryItems.registerRecipes();
 
         // Register listeners
-        getServer().getPluginManager().registerEvents(
-                new ChunkLoadListener(this, animalData, traitApplier), this);
-        getServer().getPluginManager().registerEvents(
-                new BreedingListener(this, animalData, traitApplier, husbandryItems), this);
-        getServer().getPluginManager().registerEvents(
-                new TraitEffectListener(this, animalData), this);
-        getServer().getPluginManager().registerEvents(
-                new ItemUseListener(husbandryItems, traitGui, cropGui), this);
+        getServer().getPluginManager().registerEvents(new ChunkLoadListener(this, animalData, traitApplier), this);
+        getServer().getPluginManager().registerEvents(new BreedingListener(this, animalData, traitApplier, husbandryItems), this);
+        getServer().getPluginManager().registerEvents(new TraitEffectListener(this, animalData), this);
+        getServer().getPluginManager().registerEvents(new ItemUseListener(husbandryItems, traitGui, cropGui), this);
         getServer().getPluginManager().registerEvents(traitGui, this);
 
         // Crop listeners
-        getServer().getPluginManager().registerEvents(
-                new CropHarvestListener(this, cropData), this);
-        getServer().getPluginManager().registerEvents(
-                new CropPlantListener(cropData), this);
-        getServer().getPluginManager().registerEvents(
-                new CropCraftListener(this, cropData, husbandryItems), this);
+        getServer().getPluginManager().registerEvents(new CropHarvestListener(this, cropData), this);
+        getServer().getPluginManager().registerEvents(new CropPlantListener(cropData), this);
+        getServer().getPluginManager().registerEvents(new CropCraftListener(this, cropData, husbandryItems), this);
         getServer().getPluginManager().registerEvents(cropGui, this);
 
         // Register commands

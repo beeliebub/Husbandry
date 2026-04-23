@@ -22,6 +22,7 @@ import java.util.Set;
  *   <li>{@code husbandry:tag} (byte 1) - marker that this animal has been initialized.</li>
  *   <li>{@code husbandry:gender} (string) - "MALE" or "FEMALE".</li>
  *   <li>{@code husbandry:traits} (string) - comma-separated trait enum names.</li>
+ *   <li>{@code husbandry:spawner} (byte 1) - marker for spawner-spawned animals (no traits).</li>
  * </ul>
  */
 public final class AnimalData {
@@ -29,16 +30,28 @@ public final class AnimalData {
     private final NamespacedKey tagKey;
     private final NamespacedKey genderKey;
     private final NamespacedKey traitsKey;
+    private final NamespacedKey spawnerKey;
 
     public AnimalData(Plugin plugin) {
         this.tagKey = new NamespacedKey(plugin, "tag");
         this.genderKey = new NamespacedKey(plugin, "gender");
         this.traitsKey = new NamespacedKey(plugin, "traits");
+        this.spawnerKey = new NamespacedKey(plugin, "spawner");
     }
 
     /** Returns true if the animal already has the Husbandry tag. */
     public boolean isInitialized(Animals animal) {
         return animal.getPersistentDataContainer().has(tagKey, PersistentDataType.BYTE);
+    }
+
+    /** Returns true if the animal was spawned from a spawner block. */
+    public boolean isSpawnerMob(Animals animal) {
+        return animal.getPersistentDataContainer().has(spawnerKey, PersistentDataType.BYTE);
+    }
+
+    /** Marks an animal as spawned from a spawner block (no traits will be applied). */
+    public void markSpawnerMob(Animals animal) {
+        animal.getPersistentDataContainer().set(spawnerKey, PersistentDataType.BYTE, (byte) 1);
     }
 
     /** Writes the Husbandry tag, gender, and traits to the animal's PDC. */

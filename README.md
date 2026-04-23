@@ -59,10 +59,12 @@ To inspect traits, craft a **Trait Analyzer** or **Crop Analyzer** and right-cli
 
 ### How Animals Get Traits
 
-When an animal entity is loaded for the first time (spawned naturally, from a spawner, or via commands), the plugin initializes it with:
+When an animal entity is loaded for the first time (spawned naturally or via commands), the plugin initializes it with:
 
 - A **gender** (Male or Female), assigned randomly with a 50/50 chance.
 - **1 to 2 random traits**, rolled from the pool of traits applicable to that animal's species. Trait rarity is weighted by the configured chances (default: 75% Basic, 20% Rare, 5% Legendary).
+
+**Spawner-block animals are excluded.** Animals spawned from spawner blocks are permanently flagged and will never receive traits or a gender. This flag persists across chunk unloads and server restarts.
 
 Trait data is stored directly on the entity via Persistent Data Containers (PDC) and persists across server restarts, chunk unloads, and world saves with no external database required.
 
@@ -80,7 +82,7 @@ When two compatible animals breed successfully, their offspring's traits are det
 | **Recessive** | Inherited only if **both** parents have it | Hasty, Beefy, Heavy, Fertile |
 | **Special** | **Never** inherited through normal breeding | Fireproof, Bountiful, Invincible, Pollinator |
 
-Special traits represent powerful abilities that cannot be passed down through conventional breeding. See [Quality Feed and Rare Breeding](#quality-feed-and-rare-breeding) for the one exception.
+Special traits represent powerful abilities that cannot be passed down through conventional breeding. See [Quality Feed and Rare Breeding](#quality-feed-and-rare-breeding) for the one exception, which requires both parents to share the trait.
 
 ### Quality Feed and Rare Breeding
 
@@ -90,8 +92,9 @@ To use Quality Feed:
 
 1. Right-click each parent with the appropriate Quality Feed item before they breed.
 2. Both parents must be fed for the effect to activate.
-3. When both parents are quality-fed, any **Rare-rarity Special** trait on either parent is inherited as if it were Dominant (at least one parent needs it).
-4. **Legendary-rarity Special** traits are never inherited, even with Quality Feed.
+3. When both parents are quality-fed, any **Rare-rarity Special** trait that **both** parents share is inherited to the offspring.
+4. If only one parent has a Rare Special trait, it is **not** passed down, even with Quality Feed.
+5. **Legendary-rarity Special** traits are never inherited, even with Quality Feed.
 
 Each feed type works only on specific animal species:
 
@@ -217,7 +220,7 @@ This is the most important distinction in the crop system:
 Key rules:
 - The Quality **trait** causes a crop to produce quality items. It is consumed on harvest and does not pass to the next generation of seeds.
 - The Quality Crop **marker** is what matters for crafting Quality Feed. It appears on items harvested from Quality-traited crops.
-- A seed can have *both*: the Quality trait (for planting) and the Quality Crop marker (for crafting). These are independent.
+- **Plantable items (seeds, carrots, potatoes) will never have both** the Quality trait and the Quality Crop marker at the same time. If both would be applied, the Quality Crop marker takes precedence and the Quality trait is stripped. Non-plantable items (wheat, beetroot, pumpkin, melon slice) can only have the Quality Crop marker, never the Quality trait.
 - Planting a seed that only has the Quality Crop marker (but no Quality trait) will **not** produce quality items. Only the trait matters for planting.
 
 ### Pumpkins and Melons
@@ -247,8 +250,9 @@ Trait data is always cleaned up from the chunk when an immature crop is broken, 
 When crafting **pumpkin seeds** or **melon seeds** from a pumpkin or melon slice:
 
 - All traits on the source item, including the Quality trait, are passed through to the resulting seeds.
-- The Quality Crop marker, if present on the source, is also passed through independently.
-- This means a Quality pumpkin crafted into seeds will produce Quality pumpkin seeds that, when planted, will grow a stem capable of producing quality pumpkins.
+- The Quality Crop marker, if present on the source, is also passed through to the seeds.
+- If the source has both the Quality trait and the Quality Crop marker, the Quality Crop marker takes precedence on the resulting seeds and the Quality trait is stripped (plantables never have both).
+- A Quality pumpkin (with the Quality trait but no Quality Crop marker) crafted into seeds will produce Quality pumpkin seeds that, when planted, will grow a stem capable of producing quality pumpkins.
 
 ---
 
@@ -284,15 +288,15 @@ An operator-only tool for modifying crop traits on planted blocks. Right-click a
 
 Quality Feed items are crafted from quality crops and used to enable rare trait inheritance during animal breeding. Feed both parents before they breed to activate the effect.
 
-All Quality Feed recipes are **shapeless** and require every crop ingredient to be a **Quality Crop** (has the `quality_crop` marker with enchantment glint) in **full stacks of 64**. Each recipe produces **4 feed items**.
+All Quality Feed recipes are **shapeless**. Every ingredient slot must contain a **full stack of 64 items**, and every crop ingredient must be a **Quality Crop** (identifiable by its gold name, "Quality Crop" lore, and enchantment glint). Each recipe produces **4 feed items**. The entire crafting grid (all 9 slots) is consumed when crafting.
 
-| Feed Item | Recipe |
+| Feed Item | Recipe (each slot = 64 items) |
 |---|---|
-| Quality Wheat Feed | 3x Quality Wheat + 3x Quality Pumpkin + 3x Quality Melon Slice |
-| Quality Carrot Feed | 3x Quality Carrot + 3x Quality Potato + 3x Quality Beetroot |
-| Quality Golden Carrot Feed | 4x Quality Carrot + 4x Quality Melon Slice + 1x Gold Ingot (64 stack) |
-| Quality Seed Feed (variant A) | 3x Quality Wheat Seeds + 3x Quality Beetroot Seeds + 3x Quality Pumpkin Seeds |
-| Quality Seed Feed (variant B) | 3x Quality Wheat Seeds + 3x Quality Beetroot Seeds + 3x Quality Melon Seeds |
+| Quality Wheat Feed | 3 slots Quality Wheat (192) + 3 slots Quality Pumpkin (192) + 3 slots Quality Melon Slice (192) |
+| Quality Carrot Feed | 3 slots Quality Carrot (192) + 3 slots Quality Potato (192) + 3 slots Quality Beetroot (192) |
+| Quality Golden Carrot Feed | 4 slots Quality Carrot (256) + 4 slots Quality Melon Slice (256) + 1 slot Gold Ingot (64) |
+| Quality Seed Feed (variant A) | 3 slots Quality Wheat Seeds (192) + 3 slots Quality Beetroot Seeds (192) + 3 slots Quality Pumpkin Seeds (192) |
+| Quality Seed Feed (variant B) | 3 slots Quality Wheat Seeds (192) + 3 slots Quality Beetroot Seeds (192) + 3 slots Quality Melon Seeds (192) |
 
 ---
 
