@@ -5,6 +5,7 @@ import me.beeliebub.husbandry.animal.Gender;
 import me.beeliebub.husbandry.trait.Trait;
 import me.beeliebub.husbandry.trait.TraitApplier;
 import me.beeliebub.husbandry.trait.TraitRarity;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -12,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
+import org.bukkit.plugin.Plugin;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -21,14 +23,16 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * When entities are loaded (chunk load), every {@link Animals} without the
  * Husbandry PDC tag is initialized with a random gender and random traits
- * appropriate for its entity type.
+ * appropriate for its entity type. Uses config for rarity weights.
  */
 public class ChunkLoadListener implements Listener {
 
+    private final Plugin plugin;
     private final AnimalData animalData;
     private final TraitApplier traitApplier;
 
-    public ChunkLoadListener(AnimalData animalData, TraitApplier traitApplier) {
+    public ChunkLoadListener(Plugin plugin, AnimalData animalData, TraitApplier traitApplier) {
+        this.plugin = plugin;
         this.animalData = animalData;
         this.traitApplier = traitApplier;
     }
@@ -83,12 +87,13 @@ public class ChunkLoadListener implements Listener {
     }
 
     private TraitRarity pickRarity(ThreadLocalRandom rng) {
+        FileConfiguration config = plugin.getConfig();
+        double basic = config.getDouble("animal-traits.basic-chance", 75) / 100.0;
+        double rare = config.getDouble("animal-traits.rare-chance", 20) / 100.0;
+
         double roll = rng.nextDouble();
-        double cumulative = 0.0;
-        for (TraitRarity rarity : TraitRarity.values()) {
-            cumulative += rarity.getWeight();
-            if (roll < cumulative) return rarity;
-        }
-        return TraitRarity.BASIC;
+        if (roll < basic) return TraitRarity.BASIC;
+        if (roll < basic + rare) return TraitRarity.RARE;
+        return TraitRarity.LEGENDARY;
     }
 }

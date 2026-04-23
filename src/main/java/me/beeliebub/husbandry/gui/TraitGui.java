@@ -81,10 +81,11 @@ public class TraitGui implements Listener {
         }
 
         // Place gender dye in the last slot of the inventory
-        inventory.setItem(size - 1, createGenderItem(gender));
+        int genderSlot = size - 1;
+        inventory.setItem(genderSlot, createGenderItem(gender, isEditor));
 
         sessions.put(player.getUniqueId(),
-                new GuiSession(animal.getUniqueId(), isEditor, applicableTraits));
+                new GuiSession(animal.getUniqueId(), isEditor, applicableTraits, genderSlot));
         player.openInventory(inventory);
     }
 
@@ -103,6 +104,12 @@ public class TraitGui implements Listener {
             if (!session.isEditor) return;
 
             int slot = event.getSlot();
+
+            if (slot == session.genderSlot) {
+                handleGenderClick(player, session, event.getView().getTopInventory());
+                return;
+            }
+
             if (slot < 0 || slot >= session.traitLayout.size()) return;
 
             handleEditorClick(player, session, slot, event.getView().getTopInventory());
@@ -151,6 +158,20 @@ public class TraitGui implements Listener {
         inventory.setItem(slot, createTraitPane(trait, nowHasTrait, true));
     }
 
+    private void handleGenderClick(Player player, GuiSession session, Inventory inventory) {
+        if (!(Bukkit.getEntity(session.animalUuid) instanceof Animals animal) || !animal.isValid()) {
+            player.closeInventory();
+            player.sendMessage(Component.text("Animal is no longer available.", NamedTextColor.RED));
+            return;
+        }
+
+        Gender current = animalData.getGender(animal);
+        Gender swapped = current == Gender.MALE ? Gender.FEMALE : Gender.MALE;
+        animalData.setGender(animal, swapped);
+
+        inventory.setItem(session.genderSlot, createGenderItem(swapped, true));
+    }
+
     // ── GUI item builders ───────────────────────────────────────────
 
     private static ItemStack createTraitPane(Trait trait, boolean hasTrait, boolean isEditor) {
@@ -183,7 +204,7 @@ public class TraitGui implements Listener {
         return item;
     }
 
-    private static ItemStack createGenderItem(Gender gender) {
+    private static ItemStack createGenderItem(Gender gender, boolean isEditor) {
         boolean isMale = gender == Gender.MALE;
         Material mat = isMale ? Material.LIGHT_BLUE_DYE : Material.PINK_DYE;
         ItemStack item = new ItemStack(mat);
@@ -192,6 +213,13 @@ public class TraitGui implements Listener {
         NamedTextColor color = isMale ? NamedTextColor.AQUA : NamedTextColor.LIGHT_PURPLE;
         String label = isMale ? "Male" : "Female";
         meta.displayName(Component.text(label, color).decoration(TextDecoration.ITALIC, false));
+
+        if (isEditor) {
+            List<Component> lore = new ArrayList<>();
+            lore.add(Component.text("Click to swap", NamedTextColor.YELLOW)
+                    .decoration(TextDecoration.ITALIC, false));
+            meta.lore(lore);
+        }
 
         item.setItemMeta(meta);
         return item;
@@ -226,6 +254,6 @@ public class TraitGui implements Listener {
 
     // ── Session record ──────────────────────────────────────────────
 
-    private record GuiSession(UUID animalUuid, boolean isEditor, List<Trait> traitLayout) {
+    private record GuiSession(UUID animalUuid, boolean isEditor, List<Trait> traitLayout, int genderSlot) {
     }
 }

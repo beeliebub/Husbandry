@@ -1,0 +1,16 @@
+# Husbandry Plugin Configuration
+
+# Trait rarity chances for animals (when first encountered).
+# Values are percentages and should sum to 100.
+animal-traits:
+  basic-chance: 75
+  rare-chance: 20
+  legendary-chance: 5
+
+# Independent per-trait chances for crops (when harvesting non-traited crops).
+# Each trait is rolled independently, so a crop can have multiple traits.
+# If no traits are rolled, the drop is vanilla (no traits).
+crop-traits:
+  barren-chance: 15
+  bountiful-chance: 10
+  quality-chance: 5

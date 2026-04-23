@@ -8,7 +8,7 @@ load: POSTWORLD
 commands:
   husbandry:
     description: Husbandry admin commands
-    usage: /husbandry <analyzer|editor>
+    usage: /husbandry <analyzer|editor|crop_analyzer|crop_editor|quality_wheat_feed|quality_carrot_feed|quality_golden_carrot_feed|quality_seed_feed|quality_crop>
 
 permissions:
   husbandry.admin:

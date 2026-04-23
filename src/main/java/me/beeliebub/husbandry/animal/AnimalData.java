@@ -60,6 +60,11 @@ public final class AnimalData {
         }
     }
 
+    /** Overwrites the gender on an animal's PDC. */
+    public void setGender(Animals animal, Gender gender) {
+        animal.getPersistentDataContainer().set(genderKey, PersistentDataType.STRING, gender.name());
+    }
+
     /** Reads the trait set from PDC. Returns an empty set if not present. */
     public Set<Trait> getTraits(Animals animal) {
         String value = animal.getPersistentDataContainer().get(traitsKey, PersistentDataType.STRING);
