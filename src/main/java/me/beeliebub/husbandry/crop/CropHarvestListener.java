@@ -8,6 +8,7 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockGrowEvent;
@@ -27,6 +28,10 @@ import java.util.concurrent.ThreadLocalRandom;
  *   <li>Fruit harvest: reads traits from fruit block's chunk PDC (tagged on grow)</li>
  *   <li>Fruit growth: copies stem traits to fruit block's chunk PDC via BlockGrowEvent</li>
  * </ul>
+ * <p>
+ * BlockDropItemEvent runs at {@link EventPriority#LOW} so trait mutations land on the
+ * dropped items before Tweaks' Replant (HIGH, consumes one traited seed for replanting)
+ * and Telekinesis (HIGHEST, routes remaining traited drops to the player's inventory).
  */
 public class CropHarvestListener implements Listener {
 
@@ -88,7 +93,9 @@ public class CropHarvestListener implements Listener {
 
     // ── Block drop: handle crops, fruits, and stems ────────────────
 
-    @EventHandler
+    // LOW priority so traits mutate dropped items before Tweaks' Replant (HIGH) consumes a
+    // seed for replanting and Telekinesis (HIGHEST) routes the rest to the player's inventory.
+    @EventHandler(priority = EventPriority.LOW)
     public void onBlockDropItem(BlockDropItemEvent event) {
         Material blockType = event.getBlockState().getType();
 
